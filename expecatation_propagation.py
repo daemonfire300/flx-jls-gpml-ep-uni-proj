@@ -37,9 +37,10 @@ def EP_binary_classification(K, y):
     # repeat
     for _ in range(50):
         for i in range(y.shape[0]): # ???? is n=N ? yes it is
-            sigma_2i= None #?????  (1.0 / sigma2i - 1.0 / sigma2i_tilda ) # 3.56
+            sigma_sqrd_i = Sigma[i]
+            #sigma_2i= None #?????  (1.0 / sigma2i - 1.0 / sigma2i_tilda ) # 3.56
             tau_i   = sigma_2i - tau[i]
-            v_i     = mu[i] * sigma_2i - v[i]
+            v_i     = mu[i] * sigma_2i - v[i] # falsch es ist hier inv_sigma_sqrd_i_hat!!!
 
             sigma_2i_dach = None # ???
             delta_tau = sigma_2i_dach - tau_i - tau[i] # 3.59
