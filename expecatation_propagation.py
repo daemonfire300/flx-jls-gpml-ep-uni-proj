@@ -24,8 +24,6 @@ def getRandomTrainingData(data):
     """
     return (x,y)
 
-
-
 def compute_sigma_sqrd_hat_i(sigma_sqrd_i, z_i):
     pass
 
@@ -85,3 +83,4 @@ if __name__ == '__main__':
     K_all = kernel.compute(X, X, 1) # ==> creating our "K" for learning, ie.  "input: K (covariance matrix)"
     plt.plot(K_all)
     plt.show()
+    EP_binary_classification(K_all, y)
