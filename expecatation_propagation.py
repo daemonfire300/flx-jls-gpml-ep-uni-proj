@@ -1,7 +1,7 @@
 import numpy as np
 import scipy
-import scipy.spatial.distance as scipy_spatial
 import matplotlib.pyplot as plt
+import kernel
 
 # returns data and +1/-1 class
 def getTrainingData(data):
@@ -24,11 +24,7 @@ def getRandomTrainingData(data):
     """
     return (x,y)
 
-def kernel(X,Y,length_scale):
-    #sqdist=scipy.spatial.distance.cdist(X,Y,'euclidean')
-    sqdist = scipy_spatial.cdist(X,Y,'euclidean')
-    sqdist=sqdist*sqdist
-    return np.exp(sqdist*(-1/(2*length_scale*length_scale)))
+
 
 def compute_sigma_sqrd_hat_i(sigma_sqrd_i, z_i):
     pass
@@ -85,7 +81,7 @@ if __name__ == '__main__':
     y = rndData[1]
     print(y.shape)
     newPoint = np.reshape(X[0], (1,5))  # == x*
-    K = kernel(newPoint, X, 1) # ==> preparation for classification, 
-    K_all = kernel(X, X, 1) # ==> creating our "K" for learning, ie.  "input: K (covariance matrix)"
+    K = kernel.compute(newPoint, X, 1) # ==> preparation for classification, 
+    K_all = kernel.compute(X, X, 1) # ==> creating our "K" for learning, ie.  "input: K (covariance matrix)"
     plt.plot(K_all)
     plt.show()
