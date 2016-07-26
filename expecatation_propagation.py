@@ -16,7 +16,12 @@ def getTrainingData(data):
     
 def getRandomTrainingData(data):
     x = np.random.rand(data.shape[0],5) # NxD
-    y = np.zeros((1, 5)) # YxD
+    y = np.zeros((data.shape[0], 1)) # YxD
+    """    
+    y[:] = 1
+    y[0,1] = 0
+    y[0,3] = 0
+    """
     return (x,y)
 
 def kernel(X,Y,length_scale):
@@ -34,7 +39,7 @@ def EP_binary_classification(K, y):
     tau   = np.zeros(y.shape[0])
     Sigma = K.copy()
     mu    = np.zeros(y.shape[0])
-
+    S_tilde = np.diag(tau)
     # repeat
     for _ in range(50):
         for i in range(y.shape[0]): # ???? is n=N ? yes it is
@@ -43,14 +48,19 @@ def EP_binary_classification(K, y):
             v_i     = mu[i] * sigma_2i - v[i]
 
             sigma_2i_dach = None # ???
-            dela_tau = sigma_2i_dach - tau_i - tau[i] # 3.59
+            delta_tau = sigma_2i_dach - tau_i - tau[i] # 3.59
             tau[i] += delta_tau
             v[i]    = sigma_2i_dach - v_i # 3.59
-            Sigma   = Sigma -  np.dot( Sigma[i] / float( 1.0/dela_tau + Sigma[i,i] ), Sigma[i].T)
+            Sigma   = Sigma -  np.dot( Sigma[i] / float( 1.0/delta_tau + Sigma[i,i] ), Sigma[i].T)
             mu      = np.dot(Sigma, v)
 
         #L = scipy.linalg.cholesky(....)
         #V = np.linalg.solve( L.T, np.dot(...) ) # ??? was ist S_tilda
+        # ^----- http://stackoverflow.com/questions/22163113/matrix-multiplication-solve-ax-b-solve-for-x
+        S_sqrt = scipy.linalg.sqrtm(S_tilde)
+        SKS = np.dot()
+        SK_dot = np.dot()
+        V = np.linalg.solve(L.T, SK_dot)
         Sigma = K - np.dot(V.T, V)
         mu    = np.dot(Sigma, v)
     return (v, tau)
@@ -74,6 +84,8 @@ if __name__ == '__main__':
     print(X.shape)
     y = rndData[1]
     print(y.shape)
-    K = kernel(X, y, 1)
-    plt.plot(K)
+    newPoint = np.reshape(X[0], (1,5))  # == x*
+    K = kernel(newPoint, X, 1) # ==> preparation for classification, 
+    K_all = kernel(X, X, 1) # ==> creating our "K" for learning, ie.  "input: K (covariance matrix)"
+    plt.plot(K_all)
     plt.show()
