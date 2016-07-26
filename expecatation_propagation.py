@@ -1,20 +1,27 @@
 import numpy as np
 import scipy
-
+import scipy.spatial.distance as scipy_spatial
+import matplotlib.pyplot as plt
 
 # returns data and +1/-1 class
 def getTrainingData(data):
     x = np.zeros((data.shape[0],5)) # NxD
-    y = np.zeros((data.shape[0], 1)) # Nx1
-    K = np.zeros((data.shape[0], data.shape[0])) # NxN
+    y = np.zeros((data.shape[0], 5)) # YxD
+    K = np.zeros((data.shape[0], data.shape[0])) # NxY
+    # ^---- warum machst du K hier, K wird doch berechnet indem man kernel(X,Y,...) aufruft
     for e in x:
         # todo
         continue
     return (x,y)
     
+def getRandomTrainingData(data):
+    x = np.random.rand(data.shape[0],5) # NxD
+    y = np.zeros((1, 5)) # YxD
+    return (x,y)
 
 def kernel(X,Y,length_scale):
-    sqdist=scipy.spatial.distance.cdist(X,Y,'euclidean')
+    #sqdist=scipy.spatial.distance.cdist(X,Y,'euclidean')
+    sqdist = scipy_spatial.cdist(X,Y,'euclidean')
     sqdist=sqdist*sqdist
     return np.exp(sqdist*(-1/(2*length_scale*length_scale)))
 
@@ -61,7 +68,12 @@ def EP_predictions(v, tau, X, y, k, xi):
 
 
 if __name__ == '__main__':
-    #data = np.zeros((100, 10))
-    data = np.random.rand(100, 10)
-    print(getTrainingData(data)[0].shape)
-    print(getTrainingData(data)[1].shape)
+    data = np.zeros((100, 10))
+    rndData = getRandomTrainingData(data)
+    X = rndData[0]
+    print(X.shape)
+    y = rndData[1]
+    print(y.shape)
+    K = kernel(X, y, 1)
+    plt.plot(K)
+    plt.show()
