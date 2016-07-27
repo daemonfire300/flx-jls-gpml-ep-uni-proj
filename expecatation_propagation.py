@@ -8,7 +8,7 @@ def getTrainingData(data):
     x = np.zeros((data.shape[0],5)) # NxD
     y = np.zeros((data.shape[0], 5)) # YxD
     K = np.zeros((data.shape[0], data.shape[0])) # NxY
-    # ^---- warum machst du K hier, K wird doch berechnet indem man kernel(X,Y,...) aufruft
+    # TODO
     for e in x:
         # todo
         continue
@@ -24,13 +24,24 @@ def getRandomTrainingData(data):
     """
     return (x,y)
 
-def compute_sigma_sqrd_hat_i(sigma_sqrd_i, z_i):
+def compute_eq_3_58(sigma_sqrd_i, mu_i, y_i, z_i):
+    # 3.58
+    zaehlerS = sigma_sqrd_i**2 * scipy.stats.norm.pdf( z_i )
+    nennerS  = (1.0 + sigma_sqrd_i) * scipy.stats.norm.cdf( z_i )
+    multiS   = z_i + scipy.stats.norm.pdf( z_i ) / scipy.stats.norm.cdf( z_i )
+    sigma_sqrd_hat_i = sigma_sqrd_i - zaehler / nenner * multi
+
+    zaehlerM = y_i * sigma_sqrd_i * scipy.stats.norm.pdf( z_i )
+    nennerM  = scipy.stats.norm.cdf( z_i ) * np.sqrt(1.0 + sigma_sqrd_i)
+    mu_hat_i = mu_i + zaehlerM / nennerM
+
+    return (0,0)#(sigma_sqrd_hat_i, mu_hat_i) # TODO
     pass
 
 def EP_binary_classification(K, y):
     # init
-    v     = np.zeros(y.shape[0])
-    tau   = np.zeros(y.shape[0])
+    v     = np.zeros(y.shape[0]) # v_tilde
+    tau   = np.zeros(y.shape[0]) # tau_hat
     Sigma = K.copy()
     mu    = np.zeros(y.shape[0])
     S_tilde = np.diag(tau)
@@ -42,19 +53,25 @@ def EP_binary_classification(K, y):
             tau_i   = sigma_sqrd_i - tau[i]
             v_i     = mu[i] * sigma_sqrd_i - v[i]
 
-            sigma_2i_dach = None # ???
-            delta_tau = sigma_2i_dach - tau_i - tau[i] # 3.59
+            sigma_sqrd_hat_i, mu_hat_i = compute_eq_3_58(
+                                                sigma_sqrd_i,
+                                                0, #TODO: mu_i
+                                                y[i],
+                                                0) #TODO: z_i
+            delta_tau = 1.0/sigma_sqrd_hat_i - tau_i - tau[i] # 3.59
             tau[i] += delta_tau
-            v[i]    = sigma_2i_dach - v_i # 3.59
-            Sigma   = Sigma -  np.dot( Sigma[i] / float( 1.0/delta_tau + Sigma[i,i] ), Sigma[i].T)
+            v[i]    = 1.0/sigma_sqrd_hat_i*mu_hat_i - v_i # 3.59
+            Sigma   = Sigma - np.dot( Sigma[i] / float( 1.0/delta_tau + Sigma[i,i] ), Sigma[i].T)
             mu      = np.dot(Sigma, v)
 
         #L = scipy.linalg.cholesky(....)
         #V = np.linalg.solve( L.T, np.dot(...) ) # ??? was ist S_tilda
         # ^----- http://stackoverflow.com/questions/22163113/matrix-multiplication-solve-ax-b-solve-for-x
+        
+        # http://stattrek.com/statistics/notation.aspx
         S_sqrt = scipy.linalg.sqrtm(S_tilde)
-        SKS = np.dot()
-        SK_dot = np.dot()
+        SKS = np.dot() # TODO
+        SK_dot = np.dot() # TODO
         V = np.linalg.solve(L.T, SK_dot)
         Sigma = K - np.dot(V.T, V)
         mu    = np.dot(Sigma, v)
