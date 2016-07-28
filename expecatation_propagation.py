@@ -49,7 +49,6 @@ def EP_binary_classification(K, y):
     tau   = np.zeros(N) # tau_hat
     Sigma = K.copy()    
     mu    = np.zeros(N)
-    S_tilde = np.diag(tau)
     
     Sigma_before = Sigma.copy()
     mu_before[:] = mu
@@ -60,8 +59,8 @@ def EP_binary_classification(K, y):
     Z_hat = np.zeros(N)
 
     # init all with 0 ?
-    sigma_sqrd_before = np.zeros(N)
-    mu_before = np.zeros(N)
+    sigma_sqrd_before = 0
+    mu_before = 0
 
     # repeat
     for _ in range(50):
@@ -90,15 +89,12 @@ def EP_binary_classification(K, y):
             sigma_sqrd_before = sigma_sqrd_i # oder sigma_sqrd_hat_i ?
             mu_before = mu[i]
 
-        #L = scipy.linalg.cholesky(....)
-        #V = np.linalg.solve( L.T, np.dot(...) ) # ??? was ist S_tilda
-        # ^----- http://stackoverflow.com/questions/22163113/matrix-multiplication-solve-ax-b-solve-for-x
-        
         # http://stattrek.com/statistics/notation.aspx
+        S_tilde = np.diag(tau)
         S_sqrt = scipy.linalg.sqrtm(S_tilde)
-        SKS = np.dot() # TODO
-        SK_dot = np.dot() # TODO
-        V = np.linalg.solve(L.T, SK_dot)
+        L = scipy.linalg.cholesky(np.identity(N) + np.dot( np.dot(S_sqrt, K), S_sqrt))
+        V = np.linalg.solve( L.T, np.dot(S_sqrt, K) )
+        # ^----- http://stackoverflow.com/questions/22163113/matrix-multiplication-solve-ax-b-solve-for-x
         Sigma = K - np.dot(V.T, V)
         mu    = np.dot(Sigma, v)
     return (v, tau)
