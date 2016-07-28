@@ -30,10 +30,6 @@ Computes the moments using eq (3.58) Rasmussen Ch3.
 This is done for Line 7 of Rasmussen Pseudo Code Page 58, code (3.5).
 """
 def compute_moments(sigma_sqrd_before, mu_before, y_i, z_i):
-    return compute_eq_3_58(sigma_sqrd_before, mu_before, y_i, z_i)
-
-def compute_eq_3_58(sigma_sqrd_before, mu_before, y_i, z_i):
-    # 3.58
     numerator_sigma = sigma_sqrd_before**2 * scipy.stats.norm.pdf( z_i ) # Numerator Part 1 for sgm sqrd hat i
     denominator_sigma  = (1.0 + sigma_sqrd_before) * scipy.stats.norm.cdf( z_i )
     multi_sigma   = z_i + scipy.stats.norm.pdf( z_i ) / scipy.stats.norm.cdf( z_i )
@@ -48,34 +44,35 @@ def compute_eq_3_58(sigma_sqrd_before, mu_before, y_i, z_i):
 
 def EP_binary_classification(K, y):
     # init
-    v     = np.zeros(y.shape[0]) # v_tilde
-    tau   = np.zeros(y.shape[0]) # tau_hat
+    N     = y.shape[0]
+    v     = np.zeros(N) # v_tilde
+    tau   = np.zeros(N) # tau_hat
     Sigma = K.copy()    
-    mu    = np.zeros(y.shape[0])
+    mu    = np.zeros(N)
     S_tilde = np.diag(tau)
     
     Sigma_before = Sigma.copy()
     mu_before[:] = mu
     sigma_sqrd_i_minus = 0
     
-    z = np.zeros(y.shape[0])
-    # y = np.zeros(y.shape[0]) # das ist ein eingabe param, nicht ueberschreiben!
-    Z_hat = np.zeros(y.shape[0])
+    z = np.zeros(N)
+    # y = np.zeros(N) # das ist ein eingabe param, nicht ueberschreiben!
+    Z_hat = np.zeros(N)
 
     # init all with 0 ?
-    sigma_sqrd_before = np.zeros(y.shape[0])
-    mu_before = np.zeros(y.shape[0])
+    sigma_sqrd_before = np.zeros(N)
+    mu_before = np.zeros(N)
 
     # repeat
     for _ in range(50):
-        for i in range(y.shape[0]):
+        for i in range(N):
                     
             sigma_sqrd_i = Sigma[i,i]
             inv_sigma_sqrd_i = 1 / sigma_sqrd_i
             tau_before   = inv_sigma_sqrd_i - tau[i]
             v_before     = inv_sigma_sqrd_i * mu[i] - v[i]
 
-            sigma_sqrd_hat_i, mu_hat_i = compute_eq_3_58(
+            sigma_sqrd_hat_i, mu_hat_i = compute_moments(
                                                 sigma_sqrd_i,
                                                 mu_before, #TODO
                                                 y[i],
@@ -84,7 +81,8 @@ def EP_binary_classification(K, y):
             delta_tau   = inv_sigma_sqrd_hat_i - tau_before - tau[i] # 3.59
             tau[i]     += delta_tau
             v[i]        = inv_sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
-            Sigma       = Sigma - np.dot( Sigma[i] / float( 1.0/delta_tau + Sigma[i,i] ), Sigma[i].T)
+            Sigma       = Sigma - np.dot( 1.0/delta_tau + Sigma[i,i],
+                                          np.dot(Sigma[:,i:i+1]), Sigma[i].reshape(1,N) )
             
             mu          = np.dot(Sigma, v)
             
