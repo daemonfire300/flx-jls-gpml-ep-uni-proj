@@ -85,6 +85,7 @@ def EP_binary_classification(K, y):
             tau[i]     += delta_tau
             v[i]        = inv_sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
             Sigma       = Sigma - np.dot( Sigma[i] / float( 1.0/delta_tau + Sigma[i,i] ), Sigma[i].T)
+            
             mu          = np.dot(Sigma, v)
             
             #update before vars == variables with subscript -i
