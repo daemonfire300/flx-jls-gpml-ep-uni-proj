@@ -25,15 +25,15 @@ def getRandomTrainingData(data):
     """
     return (x,y)
 
-def compute_eq_3_58(sigma_sqrd_i, mu_i, y_i, z_i):
+def compute_eq_3_58(sigma_sqrd_before, mu_i, y_i, z_i):
     # 3.58
-    zaehlerS = sigma_sqrd_i**2 * scipy.stats.norm.pdf( z_i )
-    nennerS  = (1.0 + sigma_sqrd_i) * scipy.stats.norm.cdf( z_i )
+    zaehlerS = sigma_sqrd_before**2 * scipy.stats.norm.pdf( z_i )
+    nennerS  = (1.0 + sigma_sqrd_before) * scipy.stats.norm.cdf( z_i )
     multiS   = z_i + scipy.stats.norm.pdf( z_i ) / scipy.stats.norm.cdf( z_i )
-    sigma_sqrd_hat_i = sigma_sqrd_i - zaehler / nenner * multi
+    sigma_sqrd_hat_i = sigma_sqrd_before - zaehler / nenner * multi
 
-    zaehlerM = y_i * sigma_sqrd_i * scipy.stats.norm.pdf( z_i )
-    nennerM  = scipy.stats.norm.cdf( z_i ) * np.sqrt(1.0 + sigma_sqrd_i)
+    zaehlerM = y_i * sigma_sqrd_before * scipy.stats.norm.pdf( z_i )
+    nennerM  = scipy.stats.norm.cdf( z_i ) * np.sqrt(1.0 + sigma_sqrd_before)
     mu_hat_i = mu_i + zaehlerM / nennerM
 
     return (0,0)#(sigma_sqrd_hat_i, mu_hat_i) # TODO
