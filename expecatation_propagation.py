@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+import scipy.stats as sp_stats
 import matplotlib.pyplot as plt
 import kernel
 
@@ -38,16 +39,32 @@ def compute_eq_3_58(sigma_sqrd_i, mu_i, y_i, z_i):
     return (0,0)#(sigma_sqrd_hat_i, mu_hat_i) # TODO
     pass
 
+
 def EP_binary_classification(K, y):
     # init
     v     = np.zeros(y.shape[0]) # v_tilde
     tau   = np.zeros(y.shape[0]) # tau_hat
-    Sigma = K.copy()
+    Sigma = K.copy()    
     mu    = np.zeros(y.shape[0])
     S_tilde = np.diag(tau)
+    
+    Sigma_before = Sigma.Copy()
+    mu_before[:] = mu
+    sigma_sqrd_i_minus = 0
+    
+    z = np.zeros(y.shape[0])
+    y = np.zeros(y.shape[0])
+    Z_hat = np.zeros(y.shape[0])
     # repeat
-    for _ in range(50):
+    for step in range(50):
         for i in range(y.shape[0]): # ???? is n=N ? yes it is
+            if step == 0:
+                # for the first time we just set Z_hat_i = 1
+                Z_hat[i] = sp_stats.norm.cdf(1.0)
+                z[i] = Z_hat[i] * sp_stats.norm.pdf()
+            if step > 0:
+                    sigma_sqrd_i_minus = Sigma_before[i,i]
+                    Sigma_before = Sigma.Copy()
             sigma_sqrd_i = 1.0 / Sigma[i,i]
             #sigma_2i= None #?????  (1.0 / sigma2i - 1.0 / sigma2i_tilda ) # 3.56
             tau_i   = sigma_sqrd_i - tau[i]
