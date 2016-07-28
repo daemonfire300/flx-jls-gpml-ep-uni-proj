@@ -55,33 +55,34 @@ def EP_binary_classification(K, y):
     z = np.zeros(y.shape[0])
     # y = np.zeros(y.shape[0]) # das ist ein eingabe param, nicht ueberschreiben!
     Z_hat = np.zeros(y.shape[0])
+
+    # init all with 0 ?
+    sigma_sqrd_before = 0
+    mu_before = 0
+
     # repeat
-    for step in range(50):
+    for _ in range(50):
         for i in range(y.shape[0]):
-            if step == 0:
-                # for the first time we just set Z_hat_i = 1
-                Z_hat[i] = sp_stats.norm.cdf(1.0)
-                z[i] = Z_hat[i] * sp_stats.norm.pdf()
-            elif step > 0:
-                    sigma_sqrd_i_minus = Sigma_before[i,i]
-                    Sigma_before = Sigma.Copy()
                     
             sigma_sqrd_i = Sigma[i,i]
-            #sigma_2i= None #?????  (1.0 / sigma2i - 1.0 / sigma2i_tilda ) # 3.56
             tau_before   = 1.0/sigma_sqrd_i - tau[i]
             v_before     = 1.0/sigma_sqrd_i * mu[i] - v[i]
 
             sigma_sqrd_hat_i, mu_hat_i = compute_eq_3_58(
                                                 sigma_sqrd_i,
-                                                0, #TODO: mu_i
+                                                mu_before, #TODO
                                                 y[i],
-                                                0) #TODO: z_i
+                                                z[i]) #TODO Was enthält z?
             
-            delta_tau = 1.0/sigma_sqrd_hat_i - tau_before - tau[i] # 3.59
-            tau[i] += delta_tau
-            v[i]    = 1.0/sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
-            Sigma   = Sigma - np.dot( Sigma[i] / float( 1.0/delta_tau + Sigma[i,i] ), Sigma[i].T)
-            mu      = np.dot(Sigma, v)
+            delta_tau   = 1.0/sigma_sqrd_hat_i - tau_before - tau[i] # 3.59
+            tau[i]     += delta_tau
+            v[i]        = 1.0/sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
+            Sigma       = Sigma - np.dot( Sigma[i] / float( 1.0/delta_tau + Sigma[i,i] ), Sigma[i].T)
+            mu          = np.dot(Sigma, v)
+            
+            #update before vars
+            sigma_sqrd_before = sigma_sqrd_i # oder sigma_sqrd_hat_i ?
+            mu_before = mu[i]
 
         #L = scipy.linalg.cholesky(....)
         #V = np.linalg.solve( L.T, np.dot(...) ) # ??? was ist S_tilda
