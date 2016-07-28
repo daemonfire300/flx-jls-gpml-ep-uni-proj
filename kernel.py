@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Jul 26 14:32:50 2016
-
-@author: frey
-"""
-
 import numpy as np
 import scipy.spatial.distance as scipy_spatial
 

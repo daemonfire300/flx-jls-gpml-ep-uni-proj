@@ -37,20 +37,20 @@ def compute_moments(sigma_sqrd_before, mu_before, y_i, z_i):
 
     numeratorM          = y_i * sigma_sqrd_before * scipy.stats.norm.pdf( z_i )
     denominatorM        = scipy.stats.norm.cdf( z_i ) * np.sqrt(1.0 + sigma_sqrd_before)
-    mu_hat_i = mu_before + numeratorM / denominatorM
+    mu_hat_i            = mu_before + numeratorM / denominatorM
 
     return (sigma_sqrd_hat_i, mu_hat_i)
 
-
+# 3.58
 def compute_z_i(y_i, mu_before, sigma_sqrd_before):
-    return float(y_i * mu_before) / float(1 + sigma_sqrd_before)
+    return float(y_i * mu_before) / np.sqrt(1.0 + sigma_sqrd_before)
 
 def EP_binary_classification(K, y):
     # init
     N     = y.shape[0]
     v     = np.zeros(N) # v_tilde
     tau   = np.zeros(N) # tau_hat
-    Sigma = K.copy()    
+    Sigma = K.copy()
     mu    = np.zeros(N)
     z = np.zeros(N) #  TODO
     
@@ -58,33 +58,29 @@ def EP_binary_classification(K, y):
     sigma_sqrd_before = 0
     mu_before = 0
 
-    # repeat
+    # repeat until convergence
     for _ in range(50):
         for i in range(N):
                     
             sigma_sqrd_i = Sigma[i,i]
-            inv_sigma_sqrd_i = 1 / sigma_sqrd_i
+            inv_sigma_sqrd_i = 1.0 / sigma_sqrd_i
             tau_before   = inv_sigma_sqrd_i - tau[i]
             v_before     = inv_sigma_sqrd_i * mu[i] - v[i]
-            if i == 0:
-                z[i] = compute_z_i(y[i], mu[i], sigma_sqrd_i)
-            else:
-                z[i] = compute_z_i(y[i], mu_before, sigma_sqrd_before)
+            z[i] = compute_z_i(y[i], mu_before, sigma_sqrd_before)
             sigma_sqrd_hat_i, mu_hat_i = compute_moments(
                                                 sigma_sqrd_before,
-                                                mu_before, #TODO
+                                                mu_before,
                                                 y[i],
                                                 z[i]) #TODO Was enthält z?
             inv_sigma_sqrd_hat_i = 1.0/sigma_sqrd_hat_i
             delta_tau   = inv_sigma_sqrd_hat_i - tau_before - tau[i] # 3.59
             tau[i]     += delta_tau
             v[i]        = inv_sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
-            Sigma       = Sigma - np.dot( 1.0/delta_tau + Sigma[i,i],
-                                          np.dot(Sigma[:,i:i+1], Sigma[i].reshape(1,N) ))
+            Sigma       = Sigma - (1.0 / (1.0/delta_tau + Sigma[i,i])) * np.dot(Sigma[:,i:i+1], Sigma[i].reshape(1,N) )
             
             mu          = np.dot(Sigma, v)
             
-            #update before vars == variables with subscript -i
+            #update "_before" vars == variables with subscript -i
             sigma_sqrd_before = sigma_sqrd_i # oder sigma_sqrd_hat_i ?
             mu_before = mu[i]
             
@@ -94,6 +90,7 @@ def EP_binary_classification(K, y):
         S_sqrt = scipy.linalg.sqrtm(S_tilde)
         L = scipy.linalg.cholesky(np.identity(N) + np.dot( np.dot(S_sqrt, K), S_sqrt))
         V = np.linalg.solve( L.T, np.dot(S_sqrt, K) )
+        print(V.shape)
         # ^----- http://stackoverflow.com/questions/22163113/matrix-multiplication-solve-ax-b-solve-for-x
         Sigma = K - np.dot(V.T, V)
         mu    = np.dot(Sigma, v)

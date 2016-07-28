@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jul 28 18:48:57 2016
-
-@author: frey
-"""
-
-"""
 v, tau are the parameters we learned before
 X is our training dataset
 K is the K we computed previously
@@ -21,16 +15,16 @@ import scipy.linalg
 import scipy.stats as sp_stats
 import numpy as np
 
-def classify(v_tilde, tau, X, K, y, k, x):
+def classify(v_tilde, tau, X, K, y, kernel_fkt, x):
     S = np.diag(tau)
     S_sqrt = scipy.linalg.sqrtm(S)
     I = np.identity(X.shape[0])
     tmp = I + np.dot( np.dot(S_sqrt, K), S_sqrt)
     L = scipy.linalg.cholesky(tmp)
-    z = np.linalg.solve(np.dot(S_sqrt, L.T), np.linalg.solve(L, np.dot(S_sqrt, np.dot(K, v_tilde))))
-    kx = k(x, X)
-    f = np.dot(kx.T, v_tilde-z)
+    z = np.linalg.solve(np.dot(S_sqrt, L.T), np.linalg.solve(L, np.dot(np.dot(S_sqrt, K), v_tilde)))
+    kx = kernel_fkt(x, X)
+    f = np.dot(kx.T, v_tilde - z)
     v = np.linalg.solve(L, np.dot(S_sqrt, kx))
-    V_f = k(x, x) - np.dot(v.T, v)
-    pi = sp_stats.norm.cdf(float(f / np.sqrt(1 + V_f)))
+    V_f = kernel_fkt(x, x) - np.dot(v.T, v)
+    pi = sp_stats.norm.cdf(float(f) / np.sqrt(1 + V_f))
     return pi
