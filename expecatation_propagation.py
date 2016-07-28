@@ -25,19 +25,25 @@ def getRandomTrainingData(data):
     """
     return (x,y)
 
+"""
+Computes the moments using eq (3.58) Rasmussen Ch3.
+This is done for Line 7 of Rasmussen Pseudo Code Page 58, code (3.5).
+"""
+def compute_moments(sigma_sqrd_before, mu_before, y_i, z_i):
+    return compute_eq_3_58(sigma_sqrd_before, mu_before, y_i, z_i)
+
 def compute_eq_3_58(sigma_sqrd_before, mu_before, y_i, z_i):
     # 3.58
-    zaehlerS = sigma_sqrd_before**2 * scipy.stats.norm.pdf( z_i )
-    nennerS  = (1.0 + sigma_sqrd_before) * scipy.stats.norm.cdf( z_i )
-    multiS   = z_i + scipy.stats.norm.pdf( z_i ) / scipy.stats.norm.cdf( z_i )
-    sigma_sqrd_hat_i = sigma_sqrd_before - zaehler / nenner * multi
+    numerator_sigma = sigma_sqrd_before**2 * scipy.stats.norm.pdf( z_i ) # Numerator Part 1 for sgm sqrd hat i
+    denominator_sigma  = (1.0 + sigma_sqrd_before) * scipy.stats.norm.cdf( z_i )
+    multi_sigma   = z_i + scipy.stats.norm.pdf( z_i ) / scipy.stats.norm.cdf( z_i )
+    sigma_sqrd_hat_i = sigma_sqrd_before - numerator_sigma / denominator_sigma * multi_sigma # Assemble parts for sigma_sqrd_hat
 
-    zaehlerM = y_i * sigma_sqrd_before * scipy.stats.norm.pdf( z_i )
-    nennerM  = scipy.stats.norm.cdf( z_i ) * np.sqrt(1.0 + sigma_sqrd_before)
-    mu_hat_i = mu_before + zaehlerM / nennerM
+    numeratorM = y_i * sigma_sqrd_before * scipy.stats.norm.pdf( z_i )
+    denominatorM  = scipy.stats.norm.cdf( z_i ) * np.sqrt(1.0 + sigma_sqrd_before)
+    mu_hat_i = mu_before + numeratorM / denominatorM
 
     return (sigma_sqrd_hat_i, mu_hat_i)
-    pass
 
 
 def EP_binary_classification(K, y):
@@ -57,8 +63,8 @@ def EP_binary_classification(K, y):
     Z_hat = np.zeros(y.shape[0])
 
     # init all with 0 ?
-    sigma_sqrd_before = 0
-    mu_before = 0
+    sigma_sqrd_before = np.zeros(y.shape[0])
+    mu_before = np.zeros(y.shape[0])
 
     # repeat
     for _ in range(50):
