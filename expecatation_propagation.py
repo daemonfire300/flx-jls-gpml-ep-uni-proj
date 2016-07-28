@@ -25,7 +25,7 @@ def getRandomTrainingData(data):
     """
     return (x,y)
 
-def compute_eq_3_58(sigma_sqrd_before, mu_i, y_i, z_i):
+def compute_eq_3_58(sigma_sqrd_before, mu_before, y_i, z_i):
     # 3.58
     zaehlerS = sigma_sqrd_before**2 * scipy.stats.norm.pdf( z_i )
     nennerS  = (1.0 + sigma_sqrd_before) * scipy.stats.norm.cdf( z_i )
@@ -34,9 +34,9 @@ def compute_eq_3_58(sigma_sqrd_before, mu_i, y_i, z_i):
 
     zaehlerM = y_i * sigma_sqrd_before * scipy.stats.norm.pdf( z_i )
     nennerM  = scipy.stats.norm.cdf( z_i ) * np.sqrt(1.0 + sigma_sqrd_before)
-    mu_hat_i = mu_i + zaehlerM / nennerM
+    mu_hat_i = mu_before + zaehlerM / nennerM
 
-    return (0,0)#(sigma_sqrd_hat_i, mu_hat_i) # TODO
+    return (sigma_sqrd_hat_i, mu_hat_i)
     pass
 
 
@@ -53,7 +53,7 @@ def EP_binary_classification(K, y):
     sigma_sqrd_i_minus = 0
     
     z = np.zeros(y.shape[0])
-    y = np.zeros(y.shape[0])
+    # y = np.zeros(y.shape[0]) # das ist ein eingabe param, nicht ueberschreiben!
     Z_hat = np.zeros(y.shape[0])
     # repeat
     for step in range(50):
@@ -76,6 +76,7 @@ def EP_binary_classification(K, y):
                                                 0, #TODO: mu_i
                                                 y[i],
                                                 0) #TODO: z_i
+            
             delta_tau = 1.0/sigma_sqrd_hat_i - tau_before - tau[i] # 3.59
             tau[i] += delta_tau
             v[i]    = 1.0/sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
