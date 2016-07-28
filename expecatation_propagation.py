@@ -65,7 +65,7 @@ def EP_binary_classification(K, y):
             v_before     = inv_sigma_sqrd_i * mu[i] - v[i]
 
             sigma_sqrd_hat_i, mu_hat_i = compute_moments(
-                                                sigma_sqrd_i,
+                                                sigma_sqrd_before,
                                                 mu_before, #TODO
                                                 y[i],
                                                 z[i]) #TODO Was enthält z?
