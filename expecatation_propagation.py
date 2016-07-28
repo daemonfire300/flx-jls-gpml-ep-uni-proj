@@ -71,22 +71,23 @@ def EP_binary_classification(K, y):
         for i in range(y.shape[0]):
                     
             sigma_sqrd_i = Sigma[i,i]
-            tau_before   = 1.0/sigma_sqrd_i - tau[i]
-            v_before     = 1.0/sigma_sqrd_i * mu[i] - v[i]
+            inv_sigma_sqrd_i = 1 / sigma_sqrd_i
+            tau_before   = inv_sigma_sqrd_i - tau[i]
+            v_before     = inv_sigma_sqrd_i * mu[i] - v[i]
 
             sigma_sqrd_hat_i, mu_hat_i = compute_eq_3_58(
                                                 sigma_sqrd_i,
                                                 mu_before, #TODO
                                                 y[i],
                                                 z[i]) #TODO Was enthält z?
-            
-            delta_tau   = 1.0/sigma_sqrd_hat_i - tau_before - tau[i] # 3.59
+            inv_sigma_sqrd_hat_i = 1.0/sigma_sqrd_hat_i
+            delta_tau   = inv_sigma_sqrd_hat_i - tau_before - tau[i] # 3.59
             tau[i]     += delta_tau
-            v[i]        = 1.0/sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
+            v[i]        = inv_sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
             Sigma       = Sigma - np.dot( Sigma[i] / float( 1.0/delta_tau + Sigma[i,i] ), Sigma[i].T)
             mu          = np.dot(Sigma, v)
             
-            #update before vars
+            #update before vars == variables with subscript -i
             sigma_sqrd_before = sigma_sqrd_i # oder sigma_sqrd_hat_i ?
             mu_before = mu[i]
 
