@@ -60,8 +60,8 @@ def EP_binary_classification(K, y):
     Z_hat = np.zeros(N)
 
     # init all with 0 ?
-    sigma_sqrd_before = np.zeros(N)
-    mu_before = np.zeros(N)
+    sigma_sqrd_before = 0
+    mu_before = 0
 
     # repeat
     for _ in range(50):
