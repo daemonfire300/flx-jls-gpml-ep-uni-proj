@@ -39,3 +39,10 @@ def load_mnist(dataset="training", digits=np.arange(10), path="./data/"):
         labels[i] = lbl[ind[i]]
 
     return images, labels
+
+if __name__ == '__main__':
+    from pylab import *
+    from numpy import *
+    images, labels = load_mnist('training', digits=[2])
+    imshow(images.mean(axis=0), cmap=cm.gray)
+    show()
