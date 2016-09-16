@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+
+import scipy.linalg
+import scipy.stats as sp_stats
+import numpy as np
+
 """
 v, tau are the parameters we learned before
 X is our training dataset
@@ -10,11 +15,6 @@ x is our "unknown" input we want to classify/get the probabilities for.
 x is not a single point but of the shape of X, but with only a single entry, otherwise kernel.compute seems to complain
 about the dimensions.
 """
-
-import scipy.linalg
-import scipy.stats as sp_stats
-import numpy as np
-
 def classify(v_tilde, tau, X, K, y, kernel_fkt, x):
     S = np.diag(tau)
     S_sqrt = scipy.linalg.sqrtm(S)
