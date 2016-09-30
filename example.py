@@ -10,7 +10,7 @@ def main():
     # learn parameters
     K = kernel.compute(training_data, training_data, 1)
     v, t = expecatation_propagation.EP_binary_classification(K, training_labels)
-    probability = prediction.classify(v, t, X, K, training_labels, kernel.compute, test_data)
+    probability = prediction.classify(v, t, training_data, K, training_labels, kernel.compute, test_data)
     print(probability)
 
 if __name__ == "__main__":

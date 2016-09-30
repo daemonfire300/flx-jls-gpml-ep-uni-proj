@@ -72,7 +72,10 @@ def EP_binary_classification(K, y):
                                                 mu_before,
                                                 y[i],
                                                 z[i]) #TODO Was enthält z?
-            inv_sigma_sqrd_hat_i = 1.0/sigma_sqrd_hat_i
+            if sigma_sqrd_hat_i == 0:
+                inv_sigma_sqrd_hat_i = 0
+            else:
+                inv_sigma_sqrd_hat_i = 1.0/sigma_sqrd_hat_i
             delta_tau   = inv_sigma_sqrd_hat_i - tau_before - tau[i] # 3.59
             tau[i]     += delta_tau
             v[i]        = inv_sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
