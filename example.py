@@ -21,7 +21,7 @@ def main():
     print("test_data_y")
     print(test_data[1].shape)
     # learn parameters
-    K = kernel.compute(training_data, training_data, 1)
+    K = kernel.compute(training_data, training_data, 1) # Calling this with the MNIST Data throws: ValueError: XA must be a 2-dimensional array.
     print("kernel")
     print(K.shape)
     v, t = expecatation_propagation.EP_binary_classification(K, training_labels)
