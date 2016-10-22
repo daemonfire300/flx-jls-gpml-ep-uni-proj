@@ -17,7 +17,10 @@ def getTrainingData(data):
     
 def getRandomTrainingData(data):
     x = np.random.rand(data.shape[0],5) # NxD
-    y = np.zeros((data.shape[0], 1)) # YxD
+    #y = np.zeros((data.shape[0], 1)) # YxD
+    y = np.random.rand(data.shape[0], 1) # YxD
+    v = np.vectorize(lambda x: np.around(x))
+    y = v(y)
     """    
     y[:] = 1
     y[0,1] = 0
