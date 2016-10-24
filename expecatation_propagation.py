@@ -58,23 +58,44 @@ def EP_binary_classification(K, y):
     z = np.zeros(N) #  TODO
     
     # init all with 0 ?
-    sigma_sqrd_before = 0
-    mu_before = 0
+    sigma_sqrd_before = 1.0
+    mu_before = 1.0
+    v_before = 1.0
 
     # repeat until convergence
     for _ in range(50):
         for i in range(N):
-                    
+            print("============ Iteration {} ============".format(i))
             sigma_sqrd_i = Sigma[i,i]
+            print("sigma_sqrd_i")
+            print(sigma_sqrd_i)
             inv_sigma_sqrd_i = 1.0 / sigma_sqrd_i
+            print("inv_sigma_sqrd_i")
+            print(inv_sigma_sqrd_i)
+            print("tau[i]")
+            print(tau[i])
             tau_before   = inv_sigma_sqrd_i - tau[i]
+            print("tau_before")
+            print(tau_before)
+            print("mu[i]")
+            print(mu[i])
+            print("v[i]")
+            print(v[i])
+            print("v_before")
+            print(v_before)
             v_before     = inv_sigma_sqrd_i * mu[i] - v[i]
+            print("v_before new")
+            print(v_before)
+            print("z[i]")
+            print(z[i])
             z[i] = compute_z_i(y[i], mu_before, sigma_sqrd_before)
             sigma_sqrd_hat_i, mu_hat_i = compute_moments(
                                                 sigma_sqrd_before,
                                                 mu_before,
                                                 y[i],
                                                 z[i]) #TODO Was enthält z?
+            print("sigma_sqrd_hat_i, mu_hat_i")
+            print(sigma_sqrd_hat_i, mu_hat_i)
             if sigma_sqrd_hat_i == 0:
                 inv_sigma_sqrd_hat_i = 0
             else:
@@ -82,6 +103,10 @@ def EP_binary_classification(K, y):
             delta_tau   = inv_sigma_sqrd_hat_i - tau_before - tau[i] # 3.59
             tau[i]     += delta_tau
             v[i]        = inv_sigma_sqrd_hat_i * mu_hat_i - v_before # 3.59
+            print("Sigma[:,i:i+1]")
+            print(Sigma[:,i:i+1])
+            print("Sigma[i].reshape(1,N)")
+            print(Sigma[i].reshape(1,N))
             Sigma       = Sigma - (1.0 / (1.0/delta_tau + Sigma[i,i])) * np.dot(Sigma[:,i:i+1], Sigma[i].reshape(1,N) )
             
             mu          = np.dot(Sigma, v)
@@ -89,7 +114,7 @@ def EP_binary_classification(K, y):
             #update "_before" vars == variables with subscript -i
             sigma_sqrd_before = sigma_sqrd_i # oder sigma_sqrd_hat_i ?
             mu_before = mu[i]
-            
+            print("============ Iteration END ============")
 
         # http://stattrek.com/statistics/notation.aspx
         S_tilde = np.diag(tau)
@@ -101,20 +126,3 @@ def EP_binary_classification(K, y):
         Sigma = K - np.dot(V.T, V)
         mu    = np.dot(Sigma, v)
     return (v, tau)
-
-
-
-
-if __name__ == '__main__':
-    data = np.zeros((100, 10))
-    rndData = getRandomTrainingData(data)
-    X = rndData[0]
-    print(X.shape)
-    y = rndData[1]
-    print(y.shape)
-    newPoint = np.reshape(X[0], (1,5))  # == x*
-    K = kernel.compute(newPoint, X, 1) # ==> preparation for classification, 
-    K_all = kernel.compute(X, X, 1) # ==> creating our "K" for learning, ie.  "input: K (covariance matrix)"
-    plt.plot(K_all)
-    plt.show()
-    EP_binary_classification(K_all, y)
